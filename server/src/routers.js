@@ -7,6 +7,9 @@ router.get('/database-info', loginController.getDatabaseInfo)
 
 // Транзакции (форма1 и модальное окно)
 const finance = require('./controllers/b_transactions')
+
+router.get('/gym', finance.getWorkoutSets)
+
 router.get('/transactions/:year-:month/sum', finance.getIncomeExpenseProfit)
 router.get('/transactions/:year-:month/list', finance.getTransactionsForMonthAndYear)
 router.get('/transactions/:year-:month/chart', finance.getChartForMonthAndYear)

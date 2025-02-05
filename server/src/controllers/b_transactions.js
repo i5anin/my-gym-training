@@ -55,6 +55,70 @@ async function getMonthlyIncomeExpenseProfit(req, res) {
   }
 }
 
+async function getWorkoutSets(req, res) {
+  try {
+    const query = `
+      WITH sets_grouped AS (
+        SELECT
+          ws.workout_id,
+          ws.set_number,
+          jsonb_build_object(
+            'weight', ws.weight,
+            'repetitions', ws.repetitions
+          ) AS main_set
+        FROM workout_set ws
+      ),
+      additional_sets AS (
+        SELECT
+          w.addition_id AS workout_id,
+          ws.set_number,
+          jsonb_agg(
+            jsonb_build_object(
+              'weight', ws.weight,
+              'repetitions', ws.repetitions
+            )
+          ) AS extra_sets
+        FROM workout_set ws
+        JOIN workout w ON ws.workout_id = w.id
+        WHERE w.addition_id IS NOT NULL
+        GROUP BY w.addition_id, ws.set_number
+      )
+      SELECT 
+        w.id AS workout_id,
+        w.workout_number,
+        mg.name AS muscle_group,
+        et.name AS exercise_type,
+        w.title,
+        w.addition_id,
+        jsonb_object_agg(
+          'set_' || sg.set_number,
+          jsonb_strip_nulls(
+            jsonb_build_object(
+              'weight', sg.main_set->>'weight',
+              'repetitions', sg.main_set->>'repetitions',
+              'extra', coalesce(asets.extra_sets, '[]'::jsonb)
+            )
+          )
+        ) AS sets
+      FROM sets_grouped sg
+      JOIN workout w ON sg.workout_id = w.id
+      JOIN muscle_group mg ON w.muscle_group_id = mg.id
+      JOIN exercise_type et ON w.exercise_type_id = et.id
+      LEFT JOIN additional_sets asets ON w.id = asets.workout_id AND sg.set_number = asets.set_number
+      GROUP BY w.id, w.workout_number, mg.name, et.name, w.title, w.addition_id;
+    `;
+
+    const { rows } = await pool.query(query);
+
+    res.json(rows.length > 0 ? rows : { message: 'Нет данных о тренировках' });
+  } catch (error) {
+    console.error('Ошибка при получении данных о подходах:', error);
+    res.status(500).send(error.message);
+  }
+}
+
+
+
 async function getIncomeExpenseProfit(req, res) {
   const { year, month } = req.params
 
@@ -246,4 +310,5 @@ module.exports = {
   getChartForMonthAndYear,
   getIncomeExpenseProfit,
   getMonthlyIncomeExpenseProfit,
+  getWorkoutSets
 }
