@@ -63,8 +63,9 @@ async function getWorkoutSets(req, res) {
           ws.workout_id,
           ws.set_number,
           jsonb_build_object(
-            'weight', ws.weight,
-            'repetitions', ws.repetitions
+            'weight', round(ws.weight::numeric, 2),
+            'repetitions', ws.repetitions::int,
+            'extra', '[]'::jsonb
           ) AS main_set
         FROM workout_set ws
       ),
@@ -74,8 +75,8 @@ async function getWorkoutSets(req, res) {
           ws.set_number,
           jsonb_agg(
             jsonb_build_object(
-              'weight', ws.weight,
-              'repetitions', ws.repetitions
+              'weight', round(ws.weight::numeric, 2),
+              'repetitions', ws.repetitions::int
             )
           ) AS extra_sets
         FROM workout_set ws
@@ -94,8 +95,8 @@ async function getWorkoutSets(req, res) {
           'set_' || sg.set_number,
           jsonb_strip_nulls(
             jsonb_build_object(
-              'weight', sg.main_set->>'weight',
-              'repetitions', sg.main_set->>'repetitions',
+              'weight', (sg.main_set->>'weight')::numeric,
+              'repetitions', (sg.main_set->>'repetitions')::int,
               'extra', coalesce(asets.extra_sets, '[]'::jsonb)
             )
           )
