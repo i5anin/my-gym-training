@@ -9,36 +9,23 @@ const isDark =
   (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
 // Расширьте объект ruLocale, добавив свои строки локализации
-const ru = {
-  ...ruLocale,
-  // dataTableServer: {  // Добавьте свой объект dataTableServer
-  // noDataText: 'Нет данных',
-  // itemsPerPageText: 'Пункты на странице:',
-  // loadingText: 'Загрузка данных'
-  // },
-}
+const ru = { ...ruLocale }
 
 const vuetify = createVuetify({
   lang: {
-    locales: { ru }, // добавьте русскую локализацию в locales
-    current: 'ru', // установите русский язык как текущий
+    locales: { ru },
+    current: 'ru',
   },
   theme: {
     defaultTheme: savedTheme || (isDark ? 'dark' : 'light'),
     themes: {
       light: {
-        colors: {
-          primary: '#1867C0',
-          secondary: '#5CBBF6',
-        },
+        colors: { primary: '#1867C0', secondary: '#5CBBF6' },
       },
       dark: {
         dark: true,
         variables: {},
-        colors: {
-          primary: '#1867C0',
-          secondary: '#5CBBF6',
-        },
+        colors: { primary: '#1867C0', secondary: '#5CBBF6' },
       },
     },
   },

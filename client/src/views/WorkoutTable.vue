@@ -1,69 +1,57 @@
 <template>
-  <div>
-    <!-- Сообщение, если нет тренировок -->
-    <v-alert v-if="!workouts || workouts.length === 0" type="info">
-      Нет доступных тренировок
-    </v-alert>
-
-    <!-- Основная таблица -->
-    <v-data-table
-      v-if="cleanWorkouts.length"
-      :headers="headers"
-      :items="cleanWorkouts"
-      item-key="workout_id"
-      dense
-      fixed-header
-      class="elevation-2"
-    />
-  </div>
+  <v-container>
+    <v-table>
+      <thead>
+        <tr>
+          <th v-for="header in headers" :key="header.key">
+            {{ header.title }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(workout, index) in workouts" :key="index">
+          <td>{{ workout.workout_id }}</td>
+          <td>{{ workout.workout_number }}</td>
+          <td>{{ workout.muscle_group }}</td>
+          <td>{{ workout.exercise_type }}</td>
+          <td>{{ workout.title }}</td>
+          <td>{{ workout.addition_id }}</td>
+          <td>
+            <template v-if="workout.sets">
+              <div v-for="(set, key) in workout.sets" :key="key">
+                <strong>{{ key }}:</strong>
+                {{ set.weight }} кг × {{ set.repetitions }}
+                <span v-if="set.extra.length">
+                  (доп:
+                  <span v-for="(extra, i) in set.extra" :key="i">
+                    {{ extra.weight }} кг × {{ extra.repetitions }}
+                    <span v-if="i !== set.extra.length - 1">, </span> </span
+                  >)
+                </span>
+              </div>
+            </template>
+          </td>
+        </tr>
+      </tbody>
+    </v-table>
+  </v-container>
 </template>
 
 <script setup>
-import { computed, defineProps, watchEffect, onMounted } from 'vue'
+import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useWorkoutStore } from './store/workoutStore'
 
-const props = defineProps({
-  workouts: {
-    type: Array,
-    required: true,
-  },
-})
+const workoutStore = useWorkoutStore()
+const { workouts } = storeToRefs(workoutStore) // ✅ Теперь `workouts` — массив
 
-// ✅ Преобразуем `sets` в строку для отображения внутри таблицы
-const cleanWorkouts = computed(() =>
-  (props.workouts || []).map((obj) => ({
-    ...obj,
-    sets: obj.sets ? formatSetsText(obj.sets) : '—',
-  }))
-)
-
-// ✅ Логируем данные при обновлении
-watchEffect(() => {
-  console.log('WorkoutTable.vue обновленные данные:', cleanWorkouts.value)
-})
-
-// ✅ Логируем данные при монтировании
-onMounted(() => {
-  console.log('WorkoutTable.vue загруженные данные (при монтировании):', cleanWorkouts.value)
-})
-
-const headers = [
-  { text: 'ID', value: 'workout_id' },
-  { text: 'Номер', value: 'workout_number' },
-  { text: 'Название', value: 'title' },
-  { text: 'Группа мышц', value: 'muscle_group' },
-  { text: 'Тип упражнения', value: 'exercise_type' },
-  { text: 'Подходы', value: 'sets' },
-]
-
-// ✅ Форматируем `sets` в текст для отображения в таблице
-const formatSetsText = (sets) => {
-  if (!sets || typeof sets !== 'object') return '—'
-  return Object.keys(sets)
-    .map((key) => `${key.replace('set_', '')}: ${sets[key].weight} кг × ${sets[key].repetitions} повторений`)
-    .join('; ')
-}
+const headers = ref([
+  { title: 'ID', key: 'workout_id' },
+  { title: 'Номер тренировки', key: 'workout_number' },
+  { title: 'Группа мышц', key: 'muscle_group' },
+  { title: 'Тип упражнения', key: 'exercise_type' },
+  { title: 'Название', key: 'title' },
+  { title: 'Доп. ID', key: 'addition_id' },
+  { title: 'Количество подходов', key: 'sets' },
+])
 </script>
-
-<style scoped>
-/* Добавляем немного стилей для читаемости подходов */
-</style>

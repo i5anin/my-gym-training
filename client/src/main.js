@@ -1,17 +1,19 @@
 // main.js
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-import App from './App.vue'
-import router from './router' // файл маршрутизации
-import { registerPlugins } from './plugins'
+import { createPinia } from 'pinia' // импортируем createPinia
 import store from './store/store'
-import '@fontsource/nunito' // импорт шрифта Nunito
+import App from './App.vue'
+import router from './router'
+import { registerPlugins } from './plugins'
+import '@fontsource/nunito'
 
 const app = createApp(App)
-const pinia = createPinia()
+
+// Создаем и используем экземпляр Pinia
+const pinia = createPinia() // создаем экземпляр Pinia
+app.use(pinia) // используем Pinia
 
 registerPlugins(app)
 app.use(router)
 app.use(store)
-app.use(pinia)
 app.mount('#app')
