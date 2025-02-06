@@ -1,10 +1,8 @@
 <template>
   <v-app>
     <AppHeader />
-    <v-main class="d-flex flex-column">
-      <AppContent class="flex-1-1" />
-      <AppFooter class="flex-0-0" />
-    </v-main>
+    <AppContent class="flex-1-1 content-padding" />
+    <AppFooter class="flex-0-0" />
   </v-app>
 </template>
 
@@ -32,5 +30,8 @@ export default {
 <style>
 body {
   font-family: 'Nunito', sans-serif;
+}
+.content-padding {
+  padding-left: 75px; /* Отступ слева */
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="container-lg" fluid>
     <h1>Home Page</h1>
 
     <WorkoutForm
@@ -27,3 +27,11 @@ onMounted(() => {
   workoutStore.fetchData()
 })
 </script>
+
+<style>
+.full-height {
+  min-height: 100vh; /* Минимальная высота - 100% экрана */
+  display: flex;
+  flex-direction: column;
+}
+</style>
