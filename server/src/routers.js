@@ -1,37 +1,21 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
 
-// Аутентификация
-const loginController = require('./controllers/b_login')
-router.get('/database-info', loginController.getDatabaseInfo)
+// Контроллеры для тренировок и меток
+const workoutController = require('./controllers/b_workouts'); // Контроллер для тренировок
+const markerController = require('./controllers/b_custom_mark'); // Контроллер для меток
+const dbController = require('./controllers/b_excel'); // Контроллер для работы с БД
 
-// Транзакции (форма1 и модальное окно)
-const finance = require('./controllers/b_transactions')
+// Запрос для получения всех тренировок
+router.get('/gym', workoutController.getWorkoutSets);
 
-router.get('/gym', finance.getWorkoutSets)
+// Запрос для получения уникальных типов упражнений
+router.get('/exercise-types', workoutController.getExerciseTypes);
 
-router.get('/transactions/:year-:month/sum', finance.getIncomeExpenseProfit)
-router.get('/transactions/:year-:month/list', finance.getTransactionsForMonthAndYear)
-router.get('/transactions/:year-:month/chart', finance.getChartForMonthAndYear)
-router.get('/transactions/id/:id', finance.getTransactionById)
-router.get('/transactions/sum', finance.getMonthlyIncomeExpenseProfit)
+// Запрос для получения уникальных групп мышц
+router.get('/muscle-groups', workoutController.getMuscleGroups);
 
-// Пользовательские метки
-const marker = require('./controllers/b_custom_mark')
-router.get('/update_my_custom_marker', marker.myCustomMarker)
+// Запрос для добавления тренировки и подходов (POST-запрос)
+router.post('/workouts', workoutController.addWorkout);
 
-// Графики и расчёты
-const graphic = require('./controllers/b_grafic')
-router.get('/chart-data', graphic.getChartData)
-router.get('/calculate-time', graphic.calculateTimeToReachTarget)
-
-// Депозиты
-const deposits = require('./controllers/b_deposits')
-router.get('/deposits', deposits.getDeposits)
-
-// Заполнение и обновление базы данных
-const db = require('./controllers/b_excel')
-router.get('/crate-database', db.createAndInsertTransactionsFromXLS)
-router.get('/update-database', db.updateTransactionsFromXLS)
-
-module.exports = router
+module.exports = router;
