@@ -25,7 +25,7 @@ export default {
   },
   async mounted() {
     try {
-      this.databaseInfo = await getDatabaseInfo()
+      // this.databaseInfo = await getDatabaseInfo()
     } catch (error) {
       console.error('Failed to load database info:', error)
     }

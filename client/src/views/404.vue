@@ -1,4 +1,4 @@
-<!-- src/views/Home.vue -->
+<!-- src/views/404.vue -->
 <template>
   <div>
     <h1>Нет такой страницы 404</h1>
