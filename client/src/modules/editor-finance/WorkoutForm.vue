@@ -39,11 +39,11 @@
         <v-btn @click="removeExercise(exerciseIndex)" color="error">Удалить упражнение</v-btn>
       </v-col>
 
-      <!-- Сеты -->
-      <v-row v-for="(set, setIndex) in exercise.sets" :key="'set-' + exerciseIndex + '-' + setIndex">
+      <!-- Основной сет -->
+      <v-row>
         <v-col cols="6" md="2">
           <v-text-field
-            v-model="set.weight"
+            v-model="exercise.weight"
             label="Вес (кг)"
             type="number"
             required
@@ -51,42 +51,36 @@
         </v-col>
         <v-col cols="6" md="2">
           <v-text-field
-            v-model="set.repetitions"
+            v-model="exercise.repetitions"
             label="Повторения"
             type="number"
             required
           />
         </v-col>
-        <v-col cols="6" md="2">
-          <v-btn @click="addDropSet(exerciseIndex, setIndex)" color="secondary">+ Добивка</v-btn>
-        </v-col>
-        <v-col cols="6" md="2">
-          <v-btn @click="removeSet(exerciseIndex, setIndex)" color="error">Удалить сет</v-btn>
-        </v-col>
-
-        <!-- Добивки -->
-        <v-row v-for="(dropSet, dropIndex) in set.extra" :key="'drop-' + exerciseIndex + '-' + setIndex + '-' + dropIndex">
-          <v-col cols="6" md="2">
-            <v-text-field
-              v-model="dropSet.weight"
-              label="Добивка: Вес (кг)"
-              type="number"
-            />
-          </v-col>
-          <v-col cols="6" md="2">
-            <v-text-field
-              v-model="dropSet.repetitions"
-              label="Добивка: Повторения"
-              type="number"
-            />
-          </v-col>
-          <v-col cols="6" md="2">
-            <v-btn @click="removeDropSet(exerciseIndex, setIndex, dropIndex)" color="error">Удалить добивку</v-btn>
-          </v-col>
-        </v-row>
       </v-row>
 
-      <v-btn v-if="canAddSet(exercise)" @click="addSet(exerciseIndex)" color="secondary" class="mt-2">+ Сет</v-btn>
+      <!-- Добивки -->
+      <v-row v-for="(dropSet, dropIndex) in exercise.extra" :key="'drop-' + exerciseIndex + '-' + dropIndex">
+        <v-col cols="6" md="2">
+          <v-text-field
+            v-model="dropSet.weight"
+            label="Добивка: Вес (кг)"
+            type="number"
+          />
+        </v-col>
+        <v-col cols="6" md="2">
+          <v-text-field
+            v-model="dropSet.repetitions"
+            label="Добивка: Повторения"
+            type="number"
+          />
+        </v-col>
+        <v-col cols="6" md="2">
+          <v-btn @click="removeDropSet(exerciseIndex, dropIndex)" color="error">Удалить добивку</v-btn>
+        </v-col>
+      </v-row>
+
+      <v-btn @click="addDropSet(exerciseIndex)" color="secondary" class="mt-2">+ Добивка</v-btn>
     </v-row>
 
     <v-btn @click="addExercise" color="secondary" class="mt-4">+ Добавить упражнение</v-btn>
@@ -95,7 +89,7 @@
 </template>
 
 <script>
-import { workoutApi } from './api/workoutApi'
+import {workoutApi} from './api/workoutApi'
 
 export default {
   name: 'WorkoutForm',
@@ -124,22 +118,14 @@ export default {
     removeExercise(index) {
       this.newWorkout.exercises.splice(index, 1)
     },
-    addSet(exerciseIndex) {
-      if (this.canAddSet(this.newWorkout.exercises[exerciseIndex])) {
-        this.newWorkout.exercises[exerciseIndex].sets.push(this.getDefaultSet())
-      }
-    },
-    removeSet(exerciseIndex, setIndex) {
-      this.newWorkout.exercises[exerciseIndex].sets.splice(setIndex, 1)
-    },
-    addDropSet(exerciseIndex, setIndex) {
-      this.newWorkout.exercises[exerciseIndex].sets[setIndex].extra.push({
+    addDropSet(exerciseIndex) {
+      this.newWorkout.exercises[exerciseIndex].extra.push({
         weight: '',
         repetitions: '',
       })
     },
-    removeDropSet(exerciseIndex, setIndex, dropIndex) {
-      this.newWorkout.exercises[exerciseIndex].sets[setIndex].extra.splice(dropIndex, 1)
+    removeDropSet(exerciseIndex, dropIndex) {
+      this.newWorkout.exercises[exerciseIndex].extra.splice(dropIndex, 1)
     },
     resetForm() {
       this.newWorkout = this.getDefaultWorkout()
@@ -155,18 +141,10 @@ export default {
         title: '',
         muscle_group_id: null,
         exercise_type_id: null,
-        sets: [this.getDefaultSet()],
-      }
-    },
-    getDefaultSet() {
-      return {
         weight: '',
         repetitions: '',
-        extra: [],
+        extra: [], // Массив добивок
       }
-    },
-    canAddSet(exercise) {
-      return exercise.sets.length < 6
     },
   },
 }
