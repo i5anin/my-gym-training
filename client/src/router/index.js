@@ -56,7 +56,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('@/views/Home.vue'),
+    component: () => import('@/modules/editor-finance/Home.vue'),
     meta: { title: 'Главная' },
   },
   ...financeRoutes,

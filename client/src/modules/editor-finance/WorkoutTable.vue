@@ -47,7 +47,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useWorkoutStore } from './store/workoutStore'
+import { useWorkoutStore } from '@/modules/editor-finance/store/workoutStore'
 
 const workoutStore = useWorkoutStore()
 const { workouts } = storeToRefs(workoutStore) // ✅ Теперь `workouts` — массив
