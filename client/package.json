@@ -14,6 +14,7 @@
     "@fontsource/nunito": "^5.0.15",
     "@mdi/font": "^7.0.96",
     "@ventralnet/vue3-jstree": "^0.0.10",
+    "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "chart.js": "^4.4.4",
     "chartjs-adapter-date-fns": "^3.0.0",
