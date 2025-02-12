@@ -3,13 +3,11 @@ const router = express.Router();
 
 // Контроллеры для тренировок и меток
 const workoutController = require('./controllers/b_workouts'); // Контроллер для тренировок
-const markerController = require('./controllers/b_custom_mark'); // Контроллер для меток
-const dbController = require('./controllers/b_excel'); // Контроллер для работы с БД
 
 // Запрос для получения всех тренировок
-router.get('/gym', workoutController.getWorkoutSets);
+router.get('/workouts', workoutController.getWorkoutSets);
 
-router.post('/post', workoutController.addWorkoutWithSets);
+router.post('/workouts/extended', workoutController.addWorkoutWithSets);
 
 // Запрос для получения уникальных типов упражнений
 router.get('/exercise-types', workoutController.getExerciseTypes);
