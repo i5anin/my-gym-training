@@ -79,8 +79,6 @@ async function getWorkoutSets(req, res) {
         et.name AS exercise_type,
         w.title,
         w.addition_id,
-        w.photo_filename, -- Добавлен номер фотофайла
-        CONCAT('../photo_db/IMG_', w.photo_filename, '.HEIC') AS photo_url, -- Формирование ссылки на фото
         jsonb_object_agg(
           'set_' || ws.set_number,
           jsonb_build_object(
@@ -105,8 +103,8 @@ async function getWorkoutSets(req, res) {
       JOIN workout w ON ws.workout_id = w.id
       JOIN muscle_group mg ON w.muscle_group_id = mg.id
       JOIN exercise_type et ON w.exercise_type_id = et.id
-      GROUP BY w.id, w.workout_number, mg.name, et.name, w.title, w.addition_id, w.photo_filename
-      ORDER BY w.workout_number ASC; -- Сортировка по возрастанию
+      GROUP BY w.id, w.workout_number, mg.name, et.name, w.title, w.addition_id
+      ORDER BY w.workout_number ASC;
     `;
 
         const { rows } = await pool.query(query);
@@ -121,6 +119,7 @@ async function getWorkoutSets(req, res) {
         res.status(500).send(error.message);
     }
 }
+
 
 async function getExerciseTypes(req, res) {
     try {
