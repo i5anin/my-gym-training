@@ -2,6 +2,7 @@ const {Pool} = require('pg')
 const {getNetworkDetails} = require('../db_type')
 const config = require('../config')
 
+
 const networkDetails = getNetworkDetails()
 const dbConfig = networkDetails.databaseType === 'build' ? config.dbConfig : config.dbConfigTest
 
@@ -68,59 +69,52 @@ async function addWorkoutWithSets(req, res) {
     }
 }
 
-
 async function getWorkoutSets(req, res) {
     try {
         const query = `
-     SELECT 
-    w.workout_number,
-    jsonb_agg(
-        jsonb_build_object(
-            'workout_id', w.id,
-            'muscle_group', mg.name,
-            'exercise_type', et.name,
-            'title', w.title,
-            'addition_id', w.addition_id,
-            'sets', (
-                SELECT jsonb_object_agg(
-                    'set_' || ws.set_number,
-                    jsonb_build_object(
-                        'weight', round(ws.weight::numeric, 2),
-                        'repetitions', ws.repetitions::int,
-                        'extra', COALESCE(
-                            (
-                                SELECT jsonb_agg(
-                                    jsonb_build_object(
-                                        'weight', round(ws_add.weight::numeric, 2),
-                                        'repetitions', ws_add.repetitions::int
-                                    )
-                                )
-                                FROM workout_set ws_add
-                                JOIN workout w_add ON ws_add.workout_id = w_add.id
-                                WHERE w_add.addition_id = w.id 
-                                  AND ws_add.set_number = ws.set_number
-                            ), '[]'::jsonb
-                        )
-                    )
-                ) 
-                FROM workout_set ws
-                WHERE ws.workout_id = w.id
+      SELECT
+        w.id AS workout_id,
+        w.workout_number,
+        mg.name AS muscle_group,
+        et.name AS exercise_type,
+        w.title,
+        w.addition_id,
+        w.photo_filename, -- Добавлен номер фотофайла
+        CONCAT('../photo_db/IMG_', w.photo_filename, '.HEIC') AS photo_url, -- Формирование ссылки на фото
+        jsonb_object_agg(
+          'set_' || ws.set_number,
+          jsonb_build_object(
+            'weight', round(ws.weight::numeric, 2),
+            'repetitions', ws.repetitions::int,
+            'extra', COALESCE(
+              (
+                SELECT jsonb_agg(
+                  jsonb_build_object(
+                    'weight', round(ws_add.weight::numeric, 2),
+                    'repetitions', ws_add.repetitions::int
+                  )
+                )
+                FROM workout_set ws_add
+                JOIN workout w_add ON ws_add.workout_id = w_add.id
+                WHERE w_add.addition_id = w.id AND ws_add.set_number = ws.set_number
+              ), '[]'::jsonb
             )
-        )
-    ) AS workouts
-FROM workout w
-JOIN muscle_group mg ON w.muscle_group_id = mg.id
-JOIN exercise_type et ON w.exercise_type_id = et.id
-GROUP BY w.workout_number;
-
+          )
+        ) AS sets
+      FROM workout_set ws
+      JOIN workout w ON ws.workout_id = w.id
+      JOIN muscle_group mg ON w.muscle_group_id = mg.id
+      JOIN exercise_type et ON w.exercise_type_id = et.id
+      GROUP BY w.id, w.workout_number, mg.name, et.name, w.title, w.addition_id, w.photo_filename
+      ORDER BY w.workout_number ASC; -- Сортировка по возрастанию
     `;
 
-        const {rows} = await pool.query(query);
+        const { rows } = await pool.query(query);
 
         if (rows.length > 0) {
-            res.json({entries: rows});
+            res.json(rows);
         } else {
-            res.json({message: 'Нет данных о тренировках'});
+            res.json({ message: 'Нет данных о тренировках' });
         }
     } catch (error) {
         console.error('Ошибка при получении данных о подходах:', error);
@@ -128,7 +122,6 @@ GROUP BY w.workout_number;
     }
 }
 
-// Получение уникальных типов упражнений
 async function getExerciseTypes(req, res) {
     try {
         const query = 'SELECT DISTINCT name FROM public.exercise_type';
@@ -140,7 +133,6 @@ async function getExerciseTypes(req, res) {
     }
 }
 
-// Получение уникальных групп мышц
 async function getMuscleGroups(req, res) {
     try {
         const query = 'SELECT DISTINCT name FROM public.muscle_group';
@@ -197,5 +189,5 @@ module.exports = {
     addWorkout,
     getMuscleGroups,
     getExerciseTypes,
-    getWorkoutSets
+    getWorkoutSets,
 }
