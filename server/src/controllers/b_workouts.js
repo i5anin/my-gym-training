@@ -72,39 +72,37 @@ async function addWorkoutWithSets(req, res) {
 async function getWorkoutSets(req, res) {
     try {
         const query = `
-      SELECT
-        w.id AS workout_id,
-        w.workout_number,
-        mg.name AS muscle_group,
-        et.name AS exercise_type,
-        w.title,
-        w.addition_id,
-        jsonb_object_agg(
-          'set_' || ws.set_number,
-          jsonb_build_object(
+SELECT
+    w.id AS workout_id,
+    w.workout_number,
+    mg.name AS muscle_group,
+    et.name AS exercise_type,
+    w.title,
+    w.addition_id,
+    jsonb_agg(
+        jsonb_build_object(
+            'set_id', ws.set_number,
             'weight', round(ws.weight::numeric, 2),
             'repetitions', ws.repetitions::int,
-            'extra', COALESCE(
-              (
+            'extra', (
                 SELECT jsonb_agg(
-                  jsonb_build_object(
-                    'weight', round(ws_add.weight::numeric, 2),
-                    'repetitions', ws_add.repetitions::int
-                  )
+                    jsonb_build_object(
+                        'weight', round(ws_add.weight::numeric, 2),
+                        'repetitions', ws_add.repetitions::int
+                    )
                 )
                 FROM workout_set ws_add
-                JOIN workout w_add ON ws_add.workout_id = w_add.id
-                WHERE w_add.addition_id = w.id AND ws_add.set_number = ws.set_number
-              ), '[]'::jsonb
+                WHERE ws_add.workout_id = w.id AND ws_add.set_number = ws.set_number
             )
-          )
-        ) AS sets
-      FROM workout_set ws
-      JOIN workout w ON ws.workout_id = w.id
-      JOIN muscle_group mg ON w.muscle_group_id = mg.id
-      JOIN exercise_type et ON w.exercise_type_id = et.id
-      GROUP BY w.id, w.workout_number, mg.name, et.name, w.title, w.addition_id
-      ORDER BY w.workout_number ASC;
+        )
+    ) AS sets
+FROM workout_set ws
+JOIN workout w ON ws.workout_id = w.id
+JOIN muscle_group mg ON w.muscle_group_id = mg.id
+JOIN exercise_type et ON w.exercise_type_id = et.id
+GROUP BY w.id, w.workout_number, mg.name, et.name, w.title, w.addition_id
+ORDER BY w.workout_number ASC;
+
     `;
 
         const { rows } = await pool.query(query);
