@@ -9,6 +9,8 @@ const dbController = require('./controllers/b_excel'); // Контроллер �
 // Запрос для получения всех тренировок
 router.get('/gym', workoutController.getWorkoutSets);
 
+router.post('/post', workoutController.addWorkoutWithSets);
+
 // Запрос для получения уникальных типов упражнений
 router.get('/exercise-types', workoutController.getExerciseTypes);
 
