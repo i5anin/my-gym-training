@@ -25,3 +25,6 @@ qodana.yaml
 *.env*
 backend/operations.*
 
+*.HEIC
+*.jpg
+*.7z
