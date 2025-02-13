@@ -16,7 +16,7 @@
 import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useWorkoutStore } from '@/modules/editor-finance/store/workoutStore'
-import WorkoutForm from './WorkoutForm.vue'
+import WorkoutForm from './form/WorkoutForm.vue'
 import WorkoutTable from './WorkoutTable.vue'
 
 const workoutStore = useWorkoutStore()

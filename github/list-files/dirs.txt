@@ -1,2 +1,2 @@
-A:\development\telegram-bot__pf-forum\bot\src\api
-A:\development\telegram-bot__pf-forum\bot\package.json
+A:\development\my-gym-training\client\src\modules\editor-finance\form
+A:\development\my-gym-training\client\src\modules\editor-finance\store

@@ -1,4 +1,3 @@
-// store/workoutStore.js
 import { defineStore } from 'pinia'
 import { workoutApi } from '../api/workoutApi'
 
@@ -11,19 +10,24 @@ export const useWorkoutStore = defineStore('workout', {
   actions: {
     async fetchData() {
       try {
-        this.muscleGroups = await workoutApi.getMuscleGroups()
-        this.exerciseTypes = await workoutApi.getExerciseTypes()
-        await this.fetchWorkouts()
+        const [muscleGroups, exerciseTypes, workouts] = await Promise.all([
+          workoutApi.getMuscleGroups(),
+          workoutApi.getExerciseTypes(),
+          workoutApi.getWorkouts(),
+        ])
+        this.muscleGroups = muscleGroups
+        this.exerciseTypes = exerciseTypes
+        this.workouts = workouts
       } catch (error) {
         console.error('Ошибка загрузки данных:', error)
       }
     },
-    async fetchWorkouts() {
+    async addWorkout(workout) {
       try {
-        const data = await workoutApi.getWorkouts()
-        this.workouts = data?.entries || []
+        await workoutApi.addWorkout(workout)
+        await this.fetchData()
       } catch (error) {
-        console.error('Ошибка загрузки тренировок:', error)
+        console.error('Ошибка добавления тренировки:', error)
       }
     },
   },
