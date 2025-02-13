@@ -1,17 +1,20 @@
 <template>
   <v-form @submit.prevent="submitWorkout">
-    <v-row v-for="(exercise, exerciseIndex) in newWorkout.exercises" :key="'exercise-' + exerciseIndex">
+    <v-row
+      v-for="(exercise, exerciseIndex) in newWorkout.exercises"
+      :key="'exercise-' + exerciseIndex"
+    >
       <v-col cols="6" md="2">
         <v-text-field
           v-model="exercise.workout_number"
-          label="Workout Number"
+          label="Номер тренировки"
           required
         />
       </v-col>
       <v-col cols="6" md="2">
         <v-text-field
           v-model="exercise.title"
-          label="Workout Title"
+          label="Название тренировки"
           required
         />
       </v-col>
@@ -19,7 +22,7 @@
         <v-select
           v-model="exercise.muscle_group_id"
           :items="muscleGroups"
-          label="Muscle Group"
+          label="Группа мышц"
           item-text="name"
           item-value="id"
           required
@@ -29,14 +32,16 @@
         <v-select
           v-model="exercise.exercise_type_id"
           :items="exerciseTypes"
-          label="Exercise Type"
+          label="Тип упражнений"
           item-text="name"
           item-value="id"
           required
         />
       </v-col>
       <v-col cols="6" md="2">
-        <v-btn @click="removeExercise(exerciseIndex)" color="error">Удалить упражнение</v-btn>
+        <v-btn @click="removeExercise(exerciseIndex)" color="error"
+          >Удалить упражнение</v-btn
+        >
       </v-col>
 
       <!-- Основной сет -->
@@ -60,7 +65,10 @@
       </v-row>
 
       <!-- Добивки -->
-      <v-row v-for="(dropSet, dropIndex) in exercise.extra" :key="'drop-' + exerciseIndex + '-' + dropIndex">
+      <v-row
+        v-for="(dropSet, dropIndex) in exercise.extra"
+        :key="'drop-' + exerciseIndex + '-' + dropIndex"
+      >
         <v-col cols="6" md="2">
           <v-text-field
             v-model="dropSet.weight"
@@ -76,20 +84,28 @@
           />
         </v-col>
         <v-col cols="6" md="2">
-          <v-btn @click="removeDropSet(exerciseIndex, dropIndex)" color="error">Удалить добивку</v-btn>
+          <v-btn @click="removeDropSet(exerciseIndex, dropIndex)" color="error"
+            >Удалить добивку</v-btn
+          >
         </v-col>
       </v-row>
 
-      <v-btn @click="addDropSet(exerciseIndex)" color="secondary" class="mt-2">+ Добивка</v-btn>
+      <v-btn @click="addDropSet(exerciseIndex)" color="secondary" class="mt-2"
+        >+ Добивка</v-btn
+      >
     </v-row>
 
-    <v-btn @click="addExercise" color="secondary" class="mt-4">+ Добавить упражнение</v-btn>
-    <v-btn type="submit" color="primary" class="mt-4">Добавить тренировку</v-btn>
+    <v-btn @click="addExercise" color="secondary" class="mt-4"
+      >+ Добавить упражнение</v-btn
+    >
+    <v-btn type="submit" color="primary" class="mt-4"
+      >Добавить тренировку</v-btn
+    >
   </v-form>
 </template>
 
 <script>
-import {workoutApi} from './api/workoutApi'
+import { workoutApi } from './api/workoutApi'
 
 export default {
   name: 'WorkoutForm',
