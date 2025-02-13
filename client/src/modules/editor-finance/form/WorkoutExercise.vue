@@ -72,6 +72,7 @@
       @click="addDropSet(setIndex)"
       color="secondary"
       class="mt-2"
+      tabindex="-1"
       >+ Добивка
     </v-btn>
   </v-row>
