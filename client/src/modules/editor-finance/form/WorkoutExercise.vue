@@ -1,5 +1,5 @@
 <template>
-  <v-row>
+  <v-row class="mt-2">
     <v-col cols="6" md="3">
       <v-combobox
         clearable
@@ -67,7 +67,11 @@
     />
 
     <!-- Кнопка добавления добивки к конкретному сету -->
-    <v-btn @click="addDropSet(setIndex)" color="secondary" class="mt-2"
+    <v-btn
+      variant="text"
+      @click="addDropSet(setIndex)"
+      color="secondary"
+      class="mt-2"
       >+ Добивка
     </v-btn>
   </v-row>

@@ -1,7 +1,6 @@
 <template>
   <div>
     <WorkoutExercise
-      class="pt-4 pb-4"
       v-for="(exercise, index) in newWorkout.exercises"
       :key="'exercise-' + index"
       :exercise="exercise"
