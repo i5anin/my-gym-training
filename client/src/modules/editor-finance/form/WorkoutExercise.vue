@@ -47,13 +47,14 @@
 
     <!-- Обозначение (автоматически заполняется) -->
     <v-col cols="6" md="3">
-      <v-text-field
+      <v-combobox
         v-model="localExercise.symbol"
         :items="exercises"
         label="Обозначение"
         item-title="symbol"
         item-value="id"
         required
+        @update:model-value="updateSymbol"
       />
     </v-col>
 
