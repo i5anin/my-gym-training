@@ -5,6 +5,7 @@
       :key="'exercise-' + index"
       :exercise="exercise"
       :muscleGroups="muscleGroups"
+      :exercises="exercises"
       :exerciseIndex="index"
       @update:exercise="updateExercise(index, $event)"
       @remove="removeExercise(index)"
@@ -72,14 +73,18 @@ function formatWorkout(workout) {
 
 // Функции генерации данных
 function getDefaultWorkout() {
-  return {workout_number: '', training_date: '', exercises: [getDefaultExercise()]}
+  return {
+    workout_number: '',
+    training_date: '',
+    exercises: [getDefaultExercise()],
+  }
 }
 
 function getDefaultExercise() {
   return {
     exercise_id: null, // Используем `exercise_id`
     muscle_group_id: null,
-    sets: Array.from({length: 4}, () => ({
+    sets: Array.from({ length: 4 }, () => ({
       weight: 0,
       repetitions: 0,
       extra: [],

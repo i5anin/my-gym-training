@@ -6,6 +6,7 @@ export const useWorkoutStore = defineStore('workout', {
     workouts: [],
     muscleGroups: [],
     exerciseTypes: [],
+    exercises: [],
   }),
   actions: {
     async fetchData() {
@@ -16,7 +17,7 @@ export const useWorkoutStore = defineStore('workout', {
           workoutApi.getWorkouts(),
         ])
         this.muscleGroups = muscleGroups
-        this.exerciseTypes = exerciseTypes
+        this.exercises = exerciseTypes
         this.workouts = workouts
       } catch (error) {
         console.error('Ошибка загрузки данных:', error)
