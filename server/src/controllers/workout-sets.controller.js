@@ -15,16 +15,22 @@ async function getWorkoutSets(req, res) {
 SELECT
     w.id AS workout_id,
     w.workout_number,
+    w.training_date,
     mg.name AS muscle_group,
     et.name AS exercise_type,
     w.title,
     w.addition_id,
+    w.series_id,
+    w.barbell_weight,
+    w.description,
+    w.description_position,
+    w.one_sided_weight,
     jsonb_agg(
         jsonb_build_object(
             'set_id', ws.set_number,
             'weight', round(ws.weight::numeric, 2),
             'repetitions', ws.repetitions::int,
-            'extra', (
+            'extra', COALESCE((
                 SELECT jsonb_agg(
                     jsonb_build_object(
                         'weight', round(ws_add.weight::numeric, 2),
@@ -35,16 +41,17 @@ SELECT
                 JOIN workout w_add ON ws_add.workout_id = w_add.id
                 WHERE w_add.addition_id = w.id 
                 AND ws_add.set_number = ws.set_number
-            )
+            ), '[]'::jsonb)
         )
     ) AS sets
 FROM workout_set ws
 JOIN workout w ON ws.workout_id = w.id
 JOIN muscle_group mg ON w.muscle_group_id = mg.id
 JOIN exercise_type et ON w.exercise_type_id = et.id
-GROUP BY w.id, w.workout_number, mg.name, et.name, w.title, w.addition_id
+GROUP BY w.id, w.workout_number, w.training_date, mg.name, et.name, w.title, w.addition_id, 
+         w.series_id, w.barbell_weight, w.description, w.description_position, w.one_sided_weight
 ORDER BY w.workout_number ASC;
-    `;
+        `;
 
         const { rows } = await pool.query(query);
 
@@ -58,6 +65,7 @@ ORDER BY w.workout_number ASC;
         res.status(500).send(error.message);
     }
 }
+
 
 // Добавление тренировки и подходов
 async function addWorkout(req, res) {

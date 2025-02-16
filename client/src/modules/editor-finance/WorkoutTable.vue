@@ -12,9 +12,26 @@
     </thead>
 
     <tbody>
-    <tr v-for="workout in workouts" :key="workout.workout_id">
-      <td>{{ workout.workout_id }}</td>
-      <td>{{ workout.workout_number }}</td>
+    <tr
+      v-for="(workout, index) in workouts"
+      :key="workout.workout_id"
+      :class="[getRowClass(workout.training_date), { 'addition-highlight': workout.addition_id }]"
+    >
+      <td
+        :class="{
+            'error-text': isIncorrectWorkoutNumber(workout.training_date),
+          }"
+      >
+        {{ workout.workout_id }}
+      </td>
+      <td
+        :class="{
+            'error-text': isIncorrectWorkoutNumber(workout.training_date),
+          }"
+      >
+        {{ workout.workout_number }}
+      </td>
+      <td>{{ formatDate(workout.training_date) }}</td>
       <td>{{ workout.muscle_group }}</td>
       <td>{{ workout.exercise_type }}</td>
       <td>{{ workout.title }}</td>
@@ -23,15 +40,22 @@
       <!-- Вывод сетов -->
       <td v-for="(setKey, index) in uniqueSetKeys" :key="'set-' + index">
         <template v-if="workout.sets && workout.sets[setKey]">
-          {{ workout.sets[setKey].weight }}×{{ workout.sets[setKey].repetitions }}
+          {{ workout.sets[setKey].weight }}×{{
+            workout.sets[setKey].repetitions
+          }}
           <span
-            v-if="Array.isArray(workout.sets[setKey].extra) && workout.sets[setKey].extra.length"
+            v-if="
+                Array.isArray(workout.sets[setKey].extra) &&
+                workout.sets[setKey].extra.length
+              "
             class="extra-sets"
           >
               <br />
               <span v-for="(extra, i) in workout.sets[setKey].extra" :key="i">
                 +{{ extra.weight }}×{{ extra.repetitions }}
-                <span v-if="i !== workout.sets[setKey].extra.length - 1">, </span>
+                <span v-if="i !== workout.sets[setKey].extra.length - 1"
+                >,
+                </span>
               </span>
             </span>
         </template>
@@ -46,15 +70,46 @@
 
 <script setup>
 import { computed } from 'vue'
+import { format } from 'date-fns'
+import { ru } from 'date-fns/locale'
 import { useWorkoutStore } from '@/modules/editor-finance/store/workoutStore'
 
 const workoutStore = useWorkoutStore()
 const workouts = computed(() => workoutStore.workouts ?? [])
 
+// Функция форматирования даты
+const formatDate = (dateString) => {
+  if (!dateString) return '—'
+  return format(new Date(dateString), 'dd.MM.yyyy', { locale: ru })
+}
+
+// Определяем "зебру" по дате
+const getRowClass = (dateString) => {
+  const dateIndex = uniqueDates.value.indexOf(formatDate(dateString))
+  return dateIndex % 2 === 0 ? 'even-row' : 'odd-row'
+}
+
+// Получаем уникальные даты в отсортированном виде
+const uniqueDates = computed(() => {
+  const dates = new Set(workouts.value.map((w) => formatDate(w.training_date)))
+  return [...dates].sort()
+})
+
+// Проверяем, есть ли в одной дате разные номера тренировок
+const isIncorrectWorkoutNumber = (dateString) => {
+  const formattedDate = formatDate(dateString)
+  const workoutsOnDate = workouts.value.filter(
+    (w) => formatDate(w.training_date) === formattedDate
+  )
+  const uniqueNumbers = new Set(workoutsOnDate.map((w) => w.workout_number))
+  return uniqueNumbers.size > 1
+}
+
 // Заголовки таблицы
 const headers = [
   { title: 'ID', key: 'workout_id' },
-  { title: 'Номер', key: 'workout_number' },
+  { title: '№ трени', key: 'workout_number' },
+  { title: 'Дата', key: 'training_date' },
   { title: 'Группа', key: 'muscle_group' },
   { title: 'Тип', key: 'exercise_type' },
   { title: 'Название', key: 'title' },
@@ -74,6 +129,29 @@ const uniqueSetKeys = computed(() => {
 </script>
 
 <style scoped>
+/* Цвета строк (зебра по дате) */
+.even-row {
+  background-color: #222; /* Черный */
+  color: white;
+}
+
+.odd-row {
+  background-color: #292929; /* Темно-серый */
+  color: white;
+}
+
+/* Ошибка: разные номера тренировок в одной дате */
+.error-text {
+  color: red;
+  font-weight: bold;
+}
+
+/* Выделение строки, если есть addition_id */
+.addition-highlight {
+  color: grey !important; /* Белый текст */
+}
+
+/* Общие стили */
 .no-data {
   text-align: center;
   font-size: 1.2rem;
