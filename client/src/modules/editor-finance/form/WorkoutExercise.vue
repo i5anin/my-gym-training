@@ -41,19 +41,19 @@
         item-title="title"
         item-value="id"
         required
+        @update:model-value="updateSymbol"
       />
     </v-col>
 
-    <!-- Обозначение упражнения -->
+    <!-- Обозначение (автоматически заполняется) -->
     <v-col cols="6" md="3">
-      <v-combobox
-        clearable
+      <v-text-field
         v-model="localExercise.symbol"
-        label="Обозначение"
         :items="exercises"
+        label="Обозначение"
         item-title="symbol"
-        item-value="symbol"
-        required
+        item-value="id"
+        readonly
       />
     </v-col>
 
@@ -63,7 +63,7 @@
         clearable
         v-model="localExercise.addition_id"
         :items="workoutOptions"
-        label="ID обивки"
+        label="ID добивки"
         item-title="workout_number"
         item-value="id"
       />
@@ -75,7 +75,7 @@
     </v-col>
   </v-row>
 
-  <!-- Сеты (обновленный ввод) -->
+  <!-- Сеты -->
   <v-row v-for="(set, setIndex) in localExercise.sets" :key="'set-' + setIndex">
     <v-col cols="6" md="4">
       <v-text-field
@@ -101,7 +101,7 @@
 </template>
 
 <script setup>
-import { ref, watch, defineProps, defineEmits, computed } from 'vue'
+import { ref, watch, defineProps, defineEmits } from 'vue'
 import WorkoutDropSet from './WorkoutDropSet.vue'
 
 const props = defineProps({
@@ -126,7 +126,13 @@ watch(
 
 const datePicker = ref(false)
 
-// Функция обработки ввода "вес × повторения", без удаления пробелов
+// Функция обновления "Обозначения" при выборе "Название"
+function updateSymbol(exerciseId) {
+  const selectedExercise = props.exercises.find((ex) => ex.id === exerciseId)
+  localExercise.value.symbol = selectedExercise?.symbol ?? '' // Если `symbol` пустой, устанавливаем ''
+}
+
+// Функция обработки ввода "вес × повторения"
 function updateSet(set) {
   const rawInput = set.formattedValue.replace(/[^0-9 ]/g, '') // ✅ Разрешаем только цифры и пробел
   const parts = rawInput.split(' ')
