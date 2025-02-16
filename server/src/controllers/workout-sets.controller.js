@@ -17,8 +17,8 @@ SELECT
     w.workout_number,
     w.training_date,
     mg.name AS muscle_group,
-    et.name AS exercise_type,
-    e.title AS exercise_name, -- ✅ Теперь название берется из таблицы exercise
+    e.title AS exercise_name, -- ✅ Название упражнения
+    e.symbol AS exercise_symbol, -- ✅ Символ упражнения (добавлен)
     w.addition_id,
     w.series_id,
     w.barbell_weight,
@@ -47,10 +47,9 @@ SELECT
 FROM workout_set ws
 JOIN workout w ON ws.workout_id = w.id
 JOIN muscle_group mg ON w.muscle_group_id = mg.id
-JOIN exercise_type et ON w.exercise_type_id = et.id
 JOIN exercise e ON w.exercise_id = e.id -- ✅ Добавлена связь с таблицей exercise
 WHERE w.addition_id IS NULL -- ✅ Исключаем все записи, где addition_id заполнен
-GROUP BY w.id, w.workout_number, w.training_date, mg.name, et.name, e.title, 
+GROUP BY w.id, w.workout_number, w.training_date, mg.name, e.title, e.symbol, 
          w.addition_id, w.series_id, w.barbell_weight, w.description, w.description_position, w.one_sided_weight
 ORDER BY w.workout_number ASC;
         `;
@@ -70,23 +69,20 @@ ORDER BY w.workout_number ASC;
 
 
 
-
-
 // Добавление тренировки и подходов
 async function addWorkout(req, res) {
-    const {workout_number, muscle_group_id, exercise_type_id, title, addition_id, sets} = req.body;
+    const {workout_number, muscle_group_id, title, addition_id, sets} = req.body;
     try {
         // Вставляем тренировку
         const workoutQuery = `
       INSERT INTO public.workout(
         workout_number,
         muscle_group_id,
-        exercise_type_id,
         title,
         addition_id
       ) RETURNING id;
     `;
-        const {rows} = await pool.query(workoutQuery, [workout_number, muscle_group_id, exercise_type_id, title, addition_id]);
+        const {rows} = await pool.query(workoutQuery, [workout_number, muscle_group_id, title, addition_id]);
         const workout_id = rows[0].id;
 
         // Вставляем подходы для тренировки

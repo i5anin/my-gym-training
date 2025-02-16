@@ -9,21 +9,26 @@ const dbConfig = networkDetails.databaseType === 'build' ? config.dbConfig : con
 // Создание пула соединений с базой данных
 const pool = new Pool(dbConfig)
 
-async function getExerciseTypes(req, res) {
+async function getExercises(req, res) {
     try {
-        const query = 'SELECT DISTINCT id, name FROM public.exercise_type';
+        const query = `
+            SELECT id, title, symbol 
+            FROM public.exercise 
+            ORDER BY title ASC;
+        `;
         const { rows } = await pool.query(query);
-        res.json(rows.length > 0 ? rows : { message: 'Нет уникальных типов упражнений' });
+        res.json(rows.length > 0 ? rows : { message: 'Нет доступных упражнений' });
     } catch (error) {
-        console.error('Ошибка при получении типов упражнений:', error);
+        console.error('Ошибка при получении списка упражнений:', error);
         res.status(500).send(error.message);
     }
 }
 
 
 
+
 module.exports = {
 
-    getExerciseTypes,
+    getExercises,
 
 }

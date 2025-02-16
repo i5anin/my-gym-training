@@ -6,7 +6,7 @@ router.get('/workouts', workoutSetsController.getWorkoutSets);
 router.post('/workouts', workoutSetsController.addWorkout);
 
 const exerciseTypesController = require('./controllers/exercise-types.controller');
-router.get('/exercise-types', exerciseTypesController.getExerciseTypes);
+router.get('/exercise-types', exerciseTypesController.getExercises);
 
 const muscleGroupsController = require('./controllers/muscle-groups.controller');
 router.get('/muscle-groups', muscleGroupsController.getMuscleGroups);
