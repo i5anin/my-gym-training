@@ -1,67 +1,66 @@
 <template>
   <v-table v-if="workouts.length">
     <thead>
-    <tr>
-      <th v-for="header in headers" :key="header.key">
-        {{ header.title }}
-      </th>
-      <th v-for="(setKey, index) in uniqueSetKeys" :key="'set-' + index">
-        {{ setKey }}
-      </th>
-    </tr>
+      <tr>
+        <th v-for="header in headers" :key="header.key">
+          {{ header.title }}
+        </th>
+        <th v-for="(setKey, index) in uniqueSetKeys" :key="'set-' + index">
+          {{ setKey }}
+        </th>
+      </tr>
     </thead>
 
     <tbody>
-    <tr
-      v-for="(workout, index) in workouts"
-      :key="workout.workout_id"
-      :class="[getRowClass(workout.training_date), { 'addition-highlight': workout.addition_id }]"
-    >
-      <td
-        :class="{
+      <tr
+        v-for="(workout, index) in workouts"
+        :key="workout.workout_id"
+        :class="[getRowClass(workout.training_date)]"
+      >
+        <td
+          :class="{
             'error-text': isIncorrectWorkoutNumber(workout.training_date),
           }"
-      >
-        {{ workout.workout_id }}
-      </td>
-      <td
-        :class="{
+        >
+          {{ workout.workout_id }}
+        </td>
+        <td
+          :class="{
             'error-text': isIncorrectWorkoutNumber(workout.training_date),
           }"
-      >
-        {{ workout.workout_number }}
-      </td>
-      <td>{{ formatDate(workout.training_date) }}</td>
-      <td>{{ workout.muscle_group }}</td>
-      <td>{{ workout.exercise_type }}</td>
-      <td>{{ workout.title }}</td>
-      <td>{{ workout.addition_id ?? '—' }}</td>
+        >
+          {{ workout.workout_number }}
+        </td>
+        <td>{{ formatDate(workout.training_date) }}</td>
+        <td>{{ workout.muscle_group }}</td>
+        <td>{{ workout.exercise_type }}</td>
+        <td>{{ workout.title }}</td>
 
-      <!-- Вывод сетов -->
-      <td v-for="(setKey, index) in uniqueSetKeys" :key="'set-' + index">
-        <template v-if="workout.sets && workout.sets[setKey]">
-          {{ workout.sets[setKey].weight }}×{{
-            workout.sets[setKey].repetitions
-          }}
-          <span
-            v-if="
+        <!-- Вывод сетов -->
+        <td v-for="(setKey, index) in uniqueSetKeys" :key="'set-' + index">
+          <template v-if="workout.sets && workout.sets[setKey]">
+            {{ workout.sets[setKey].weight
+            }}<span :style="{ color: 'grey' }">×</span
+            >{{ workout.sets[setKey].repetitions }}
+            <span
+              v-if="
                 Array.isArray(workout.sets[setKey].extra) &&
                 workout.sets[setKey].extra.length
               "
-            class="extra-sets"
-          >
+              class="extra-sets"
+            >
               <br />
               <span v-for="(extra, i) in workout.sets[setKey].extra" :key="i">
                 +{{ extra.weight }}×{{ extra.repetitions }}
                 <span v-if="i !== workout.sets[setKey].extra.length - 1"
-                >,
+                  >,
                 </span>
               </span>
             </span>
-        </template>
-        <template v-else>—</template>
-      </td>
-    </tr>
+          </template>
+          <template v-else>—</template>
+        </td>
+      </tr>
     </tbody>
   </v-table>
 
@@ -113,7 +112,6 @@ const headers = [
   { title: 'Группа', key: 'muscle_group' },
   { title: 'Тип', key: 'exercise_type' },
   { title: 'Название', key: 'title' },
-  { title: 'Доп. ID', key: 'addition_id' },
 ]
 
 // Определяем уникальные ключи сетов (set_1, set_2 и т. д.)
@@ -144,11 +142,6 @@ const uniqueSetKeys = computed(() => {
 .error-text {
   color: red;
   font-weight: bold;
-}
-
-/* Выделение строки, если есть addition_id */
-.addition-highlight {
-  color: grey !important; /* Белый текст */
 }
 
 /* Общие стили */

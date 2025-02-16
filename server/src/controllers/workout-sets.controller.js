@@ -18,7 +18,7 @@ SELECT
     w.training_date,
     mg.name AS muscle_group,
     et.name AS exercise_type,
-    w.title,
+    e.title AS exercise_name, -- ✅ Теперь название берется из таблицы exercise
     w.addition_id,
     w.series_id,
     w.barbell_weight,
@@ -30,7 +30,7 @@ SELECT
             'set_id', ws.set_number,
             'weight', round(ws.weight::numeric, 2),
             'repetitions', ws.repetitions::int,
-            'extra', COALESCE((
+            'extra', COALESCE(( 
                 SELECT jsonb_agg(
                     jsonb_build_object(
                         'weight', round(ws_add.weight::numeric, 2),
@@ -48,8 +48,10 @@ FROM workout_set ws
 JOIN workout w ON ws.workout_id = w.id
 JOIN muscle_group mg ON w.muscle_group_id = mg.id
 JOIN exercise_type et ON w.exercise_type_id = et.id
-GROUP BY w.id, w.workout_number, w.training_date, mg.name, et.name, w.title, w.addition_id, 
-         w.series_id, w.barbell_weight, w.description, w.description_position, w.one_sided_weight
+JOIN exercise e ON w.exercise_id = e.id -- ✅ Добавлена связь с таблицей exercise
+WHERE w.addition_id IS NULL -- ✅ Исключаем все записи, где addition_id заполнен
+GROUP BY w.id, w.workout_number, w.training_date, mg.name, et.name, e.title, 
+         w.addition_id, w.series_id, w.barbell_weight, w.description, w.description_position, w.one_sided_weight
 ORDER BY w.workout_number ASC;
         `;
 
@@ -65,6 +67,9 @@ ORDER BY w.workout_number ASC;
         res.status(500).send(error.message);
     }
 }
+
+
+
 
 
 // Добавление тренировки и подходов

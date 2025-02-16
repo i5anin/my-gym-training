@@ -11,4 +11,7 @@ router.get('/exercise-types', exerciseTypesController.getExerciseTypes);
 const muscleGroupsController = require('./controllers/muscle-groups.controller');
 router.get('/muscle-groups', muscleGroupsController.getMuscleGroups);
 
+const workoutController = require('./controllers/workout.controller');
+router.get('/workout-titles', workoutController.getUniqueWorkoutTitles);
+
 module.exports = router;

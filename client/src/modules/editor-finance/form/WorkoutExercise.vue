@@ -1,14 +1,65 @@
 <template>
   <v-row class="mt-2">
-    <v-col cols="6" md="2">
+    <!-- ID тренировки (скрыто) -->
+    <input type="hidden" v-model="localExercise.workout_id" />
+
+    <!-- № трен -->
+    <v-col cols="6" md="1">
       <v-combobox
         clearable
         v-model="localExercise.workout_number"
-        label="№ тренировки"
+        label="№ трени"
         required
       />
     </v-col>
-    <v-col cols="6" md="4">
+
+    <!-- Дата тренировки -->
+    <v-col cols="6" md="2">
+      <v-menu v-model="datePicker" :close-on-content-click="false">
+        <template v-slot:activator="{ props }">
+          <v-text-field
+            v-bind="props"
+            clearable
+            v-model="localExercise.training_date"
+            label="Дата"
+            required
+          />
+        </template>
+        <v-date-picker
+          v-model="localExercise.training_date"
+          @update:model-value="datePicker = false"
+        />
+      </v-menu>
+    </v-col>
+
+    <!-- Группа мышц -->
+    <v-col cols="6" md="3">
+      <v-combobox
+        clearable
+        v-model="localExercise.muscle_group_id"
+        :items="muscleGroups"
+        label="Группа"
+        item-title="name"
+        item-value="id"
+        required
+      />
+    </v-col>
+
+    <!-- Тип упражнения -->
+    <v-col cols="6" md="3">
+      <v-combobox
+        clearable
+        v-model="localExercise.exercise_type_id"
+        :items="exerciseTypes"
+        label="Тип"
+        item-title="name"
+        item-value="id"
+        required
+      />
+    </v-col>
+
+    <!-- Название упражнения -->
+    <v-col cols="6" md="3">
       <v-combobox
         clearable
         v-model="localExercise.title"
@@ -16,30 +67,8 @@
         required
       />
     </v-col>
-    <v-col cols="6" md="3">
-      <v-combobox
-        clearable
-        v-model="localExercise.exercise_type_id"
-        :items="exerciseTypes"
-        label="Обозначение"
-        item-text="name"
-        item-value="id"
-        required
-      />
-    </v-col>
-    <v-col cols="6" md="3">
-      <v-combobox
-        clearable
-        v-model="localExercise.muscle_group_id"
-        :items="muscleGroups"
-        label="Группа мышц"
-        item-text="name"
-        item-value="id"
-        required
-      />
-    </v-col>
 
-    <!-- Удаление упражнения (скрыто для первого упражнения) -->
+    <!-- Кнопка удаления упражнения (не отображается для первого элемента) -->
     <v-col cols="6" md="2" v-if="exerciseIndex > 0">
       <v-btn @click="$emit('remove')" color="error">Удалить</v-btn>
     </v-col>
@@ -47,14 +76,11 @@
 
   <!-- Отображение 4 сетов -->
   <v-row v-for="(set, setIndex) in localExercise.sets" :key="'set-' + setIndex">
-    <v-col cols="6" md="2">
-      <v-text-field v-model="set.weight" label="Вес (кг)" type="number" />
-    </v-col>
-    <v-col cols="6" md="2">
+    <v-col cols="6" md="3">
       <v-text-field
-        v-model="set.repetitions"
-        label="Количество"
-        type="number"
+        v-model="set.value"
+        label="Вес (кг) × Количество"
+        @input="updateSet(set, set.value)"
       />
     </v-col>
 
@@ -66,14 +92,14 @@
       @remove="removeDropSet(setIndex, dropIndex)"
     />
 
-    <!-- Кнопка добавления добивки к конкретному сету -->
+    <!-- Кнопка добавления добивки -->
     <v-btn
       variant="text"
       @click="addDropSet(setIndex)"
       color="secondary"
       class="mt-2"
       tabindex="-1"
-      >+ Добивка
+    >+ Добивка
     </v-btn>
   </v-row>
 </template>
@@ -87,16 +113,16 @@ const props = defineProps({
   exercise: Object,
   muscleGroups: Array,
   exerciseTypes: Array,
-  exerciseIndex: Number, // Передаем индекс упражнения
+  exerciseIndex: Number, // Индекс упражнения
 })
 
 // Определяем события
 const emit = defineEmits(['update:exercise', 'remove'])
 
-// Создаём реактивную копию пропа
+// Локальная копия объекта упражнения
 const localExercise = ref({ ...props.exercise })
 
-// Следим за изменениями localExercise и передаём их родителю
+// Слежение за изменениями и передача их родителю
 watch(
   localExercise,
   (newValue) => {
@@ -105,12 +131,30 @@ watch(
   { deep: true }
 )
 
-// Добавление добивки в конкретный set.extra
-function addDropSet(setIndex) {
-  localExercise.value.sets[setIndex].extra.push({ weight: '', repetitions: '' })
+// Управление выбором даты
+const datePicker = ref(false)
+
+// Функция для обновления веса и повторений
+function updateSet(set, value) {
+  const parts = value
+    .split(' ')
+    .map((p) => p.trim())
+    .filter(Boolean)
+  set.weight = parts[0] || ''
+  set.repetitions = parts[1] || ''
+  set.value = `${set.weight} ${set.repetitions}`.trim()
 }
 
-// Удаление добивки из конкретного set.extra
+// Добавление добивки
+function addDropSet(setIndex) {
+  localExercise.value.sets[setIndex].extra.push({
+    weight: '',
+    repetitions: '',
+    value: '',
+  })
+}
+
+// Удаление добивки
 function removeDropSet(setIndex, dropIndex) {
   localExercise.value.sets[setIndex].extra.splice(dropIndex, 1)
 }
