@@ -39,7 +39,6 @@
       />
     </v-col>
 
-
     <!-- Удаление упражнения (скрыто для первого упражнения) -->
     <v-col cols="6" md="2" v-if="exerciseIndex > 0">
       <v-btn @click="$emit('remove')" color="error">Удалить</v-btn>

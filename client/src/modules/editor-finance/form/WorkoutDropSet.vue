@@ -1,10 +1,18 @@
 <template>
   <v-row>
     <v-col cols="6" md="2">
-      <v-text-field v-model="localDropSet.weight" label="Добивка: Вес (кг)" type="number" />
+      <v-text-field
+        v-model="localDropSet.weight"
+        label="Добивка: Вес (кг)"
+        type="number"
+      />
     </v-col>
     <v-col cols="6" md="2">
-      <v-text-field v-model="localDropSet.repetitions" label="Добивка: Повторения" type="number" />
+      <v-text-field
+        v-model="localDropSet.repetitions"
+        label="Добивка: Повторения"
+        type="number"
+      />
     </v-col>
     <v-col cols="6" md="2">
       <v-btn @click="$emit('remove')" color="error">Удалить</v-btn>
