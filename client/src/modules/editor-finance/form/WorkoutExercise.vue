@@ -12,14 +12,14 @@
       />
     </v-col>
 
-    <!-- Дата тренировки -->
+    <!-- Дата тренировки (с логами) -->
     <v-col cols="6" md="2">
       <v-menu v-model="datePicker" :close-on-content-click="false">
         <template v-slot:activator="{ props }">
           <v-text-field
             v-bind="props"
             clearable
-            v-model="localExercise.training_date"
+            v-model="formattedDate"
             label="Дата"
             required
             readonly
@@ -29,7 +29,7 @@
           v-model="localExercise.training_date"
           locale="ru"
           first-day-of-week="1"
-          @update:model-value="datePicker = false"
+          @update:model-value="updateDate"
         />
       </v-menu>
     </v-col>
@@ -122,7 +122,7 @@
 </template>
 
 <script setup>
-import { ref, watch, defineProps, defineEmits, watchEffect } from 'vue'
+import { ref, watchEffect, defineProps, defineEmits } from 'vue'
 import WorkoutDropSet from './WorkoutDropSet.vue'
 
 const props = defineProps({
@@ -138,7 +138,7 @@ const emit = defineEmits(['update:exercise', 'remove'])
 const localExercise = ref({
   workout_id: '',
   workout_number: '',
-  training_date: null, // Теперь без форматирования
+  training_date: null,
   muscle_group_id: null,
   exercise_id: null,
   symbol: '',
@@ -147,37 +147,62 @@ const localExercise = ref({
 })
 
 const datePicker = ref(false)
+const formattedDate = ref('')
 
-// ✅ Следит за изменениями props.exercise и обновляет localExercise
+// ✅ Теперь обновляем `localExercise`, не теряя `training_date`
 watchEffect(() => {
   if (props.exercise) {
-    localExercise.value = { ...props.exercise }
+    Object.assign(localExercise.value, props.exercise)
+    console.log('[watchEffect] localExercise обновлен:', localExercise.value)
   }
+  updateFormattedDate()
 })
 
-function updateSymbol(exerciseId) {
-  const selectedExercise = props.exercises.find((ex) => ex.id === exerciseId)
-  localExercise.value.symbol = selectedExercise?.symbol ?? ''
+// ✅ Форматирование даты в `dd.MM.yyyy`
+function updateFormattedDate() {
+  let date = localExercise.value.training_date
+  if (!date) {
+    formattedDate.value = ''
+    return
+  }
+
+  if (!(date instanceof Date)) {
+    date = new Date(date)
+  }
+
+  if (isNaN(date.getTime())) {
+    formattedDate.value = 'Ошибка даты'
+    return
+  }
+
+  formattedDate.value = date.toLocaleDateString('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
 }
 
-function updateSet(set) {
-  const rawInput = set.formattedValue.replace(/[^0-9 ]/g, '')
-  const parts = rawInput.split(' ')
+// ✅ Обновляет `training_date` и `formattedDate`
+function updateDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date)
+  }
 
-  set.weight = parts[0] ? parseFloat(parts[0]) : ''
-  set.repetitions = parts[1] ? parseInt(parts[1], 10) : ''
+  if (isNaN(date.getTime())) {
+    return
+  }
 
-  set.formattedValue = rawInput
+  localExercise.value.training_date = date
+  updateFormattedDate()
+  datePicker.value = false
 }
 
 function addDropSet(setIndex) {
-  localExercise.value.sets[setIndex].extra.push({
-    weight: '',
-    repetitions: '',
-  })
+  localExercise.value.sets[setIndex].extra.push({ weight: '', repetitions: '' })
 }
 
 function removeDropSet(setIndex, dropIndex) {
   localExercise.value.sets[setIndex].extra.splice(dropIndex, 1)
 }
 </script>
+
