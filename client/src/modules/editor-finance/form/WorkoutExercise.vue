@@ -45,25 +45,30 @@
       />
     </v-col>
 
-    <!-- Тип упражнения -->
-    <v-col cols="6" md="3">
-      <v-combobox
-        clearable
-        v-model="localExercise.exercise_type_id"
-        :items="exerciseTypes"
-        label="Тип"
-        item-title="name"
-        item-value="id"
-        required
-      />
-    </v-col>
-
     <!-- Название упражнения -->
     <v-col cols="6" md="3">
       <v-combobox
         clearable
         v-model="localExercise.title"
         label="Название"
+        required
+      />
+    </v-col>
+
+    <v-col cols="6" md="3">
+      <v-combobox
+        clearable
+        v-model="localExercise.symbol"
+        label="Обозначение"
+        required
+      />
+    </v-col>
+
+    <v-col cols="6" md="2">
+      <v-combobox
+        clearable
+        v-model="localExercise.symbol"
+        label="ID обивки"
         required
       />
     </v-col>

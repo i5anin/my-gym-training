@@ -1,55 +1,57 @@
 <template>
   <v-table v-if="workouts.length">
     <thead>
-    <tr>
-      <th v-for="header in headers" :key="header.key">
-        {{ header.title }}
-      </th>
-      <th v-for="setIndex in maxSetCount" :key="'set-' + setIndex">
-        {{ `Сет ${setIndex}` }}
-      </th>
-    </tr>
+      <tr>
+        <th v-for="header in headers" :key="header.key">
+          {{ header.title }}
+        </th>
+        <th v-for="setIndex in maxSetCount" :key="'set-' + setIndex">
+          {{ `Сет ${setIndex}` }}
+        </th>
+      </tr>
     </thead>
 
     <tbody>
-    <tr
-      v-for="workout in workouts"
-      :key="workout.workout_id"
-      :class="[getRowClass(workout.training_date)]"
-    >
-      <td
-        :class="{
+      <tr
+        v-for="workout in workouts"
+        :key="workout.workout_id"
+        :class="[getRowClass(workout.training_date)]"
+      >
+        <td
+          :class="{
             'error-text': isIncorrectWorkoutNumber(workout.training_date),
           }"
-      >
-        {{ workout.workout_id }}
-      </td>
-      <td
-        :class="{
+        >
+          {{ workout.workout_id }}
+        </td>
+        <td
+          :class="{
             'error-text': isIncorrectWorkoutNumber(workout.training_date),
           }"
-      >
-        {{ workout.workout_number }}
-      </td>
-      <td>{{ formatDate(workout.training_date) }}</td>
-      <td>{{ workout.muscle_group }}</td>
-      <td>{{ workout.exercise_name }}</td>
+        >
+          {{ workout.workout_number }}
+        </td>
+        <td>{{ formatDate(workout.training_date) }}</td>
+        <td>{{ workout.muscle_group }}</td>
+        <td :title="workout.exercise_symbol">
+          {{ workout.exercise_name }}
+        </td>
 
-      <!-- Вывод сетов -->
-      <td v-for="setIndex in maxSetCount" :key="'set-' + setIndex">
-        <template v-if="workout.sets[setIndex - 1]">
-          {{ workout.sets[setIndex - 1].weight
-          }}<span :style="{ color: 'grey' }">×</span
-        >{{ workout.sets[setIndex - 1].repetitions }}
+        <!-- Вывод сетов -->
+        <td v-for="setIndex in maxSetCount" :key="'set-' + setIndex">
+          <template v-if="workout.sets[setIndex - 1]">
+            {{ workout.sets[setIndex - 1].weight
+            }}<span :style="{ color: 'grey' }">×</span
+            >{{ workout.sets[setIndex - 1].repetitions }}
 
-          <!-- Вывод добивок -->
-          <span
-            v-if="
+            <!-- Вывод добивок -->
+            <span
+              v-if="
                 Array.isArray(workout.sets[setIndex - 1].extra) &&
                 workout.sets[setIndex - 1].extra.length
               "
-            class="extra-sets"
-          >
+              class="extra-sets"
+            >
               <br />
               <span
                 v-for="(extra, i) in workout.sets[setIndex - 1].extra"
@@ -57,14 +59,14 @@
               >
                 +{{ extra.weight }}×{{ extra.repetitions }}
                 <span v-if="i !== workout.sets[setIndex - 1].extra.length - 1"
-                >,
+                  >,
                 </span>
               </span>
             </span>
-        </template>
-        <template v-else>—</template>
-      </td>
-    </tr>
+          </template>
+          <template v-else></template>
+        </td>
+      </tr>
     </tbody>
   </v-table>
 
@@ -72,10 +74,10 @@
 </template>
 
 <script setup>
-import {computed} from 'vue'
-import {format} from 'date-fns'
-import {ru} from 'date-fns/locale'
-import {useWorkoutStore} from '@/modules/editor-finance/store/workoutStore'
+import { computed } from 'vue'
+import { format } from 'date-fns'
+import { ru } from 'date-fns/locale'
+import { useWorkoutStore } from '@/modules/editor-finance/store/workoutStore'
 
 const workoutStore = useWorkoutStore()
 const workouts = computed(() => workoutStore.workouts ?? [])
@@ -83,7 +85,7 @@ const workouts = computed(() => workoutStore.workouts ?? [])
 // Функция форматирования даты
 const formatDate = (dateString) => {
   if (!dateString) return '—'
-  return format(new Date(dateString), 'dd.MM.yyyy', {locale: ru})
+  return format(new Date(dateString), 'dd.MM.yyyy', { locale: ru })
 }
 
 // Определяем "зебру" по дате
@@ -110,17 +112,19 @@ const isIncorrectWorkoutNumber = (dateString) => {
 
 // Заголовки таблицы
 const headers = [
-  {title: 'ID', key: 'workout_id'},
-  {title: '№ трени', key: 'workout_number'},
-  {title: 'Дата', key: 'training_date'},
-  {title: 'Группа', key: 'muscle_group'},
-  {title: 'Упражнение', key: 'exercise_name'},
+  { title: 'ID', key: 'workout_id' },
+  { title: '№ трени', key: 'workout_number' },
+  { title: 'Дата', key: 'training_date' },
+  { title: 'Группа', key: 'muscle_group' },
+  { title: 'Упражнение', key: 'exercise_name' },
 ]
 
 // Определяем максимальное количество сетов в тренировке
 const maxSetCount = computed(() => {
   return Math.max(
-    ...workouts.value.map((workout) => (Array.isArray(workout.sets) ? workout.sets.length : 0)),
+    ...workouts.value.map((workout) =>
+      Array.isArray(workout.sets) ? workout.sets.length : 0
+    ),
     0
   )
 })
