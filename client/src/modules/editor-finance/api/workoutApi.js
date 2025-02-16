@@ -4,7 +4,7 @@ import { handleApiError, handleResponse } from '@/api/errorHandler'
 
 export const workoutApi = {
   getWorkouts: () =>
-    axiosInstance.get('/gym').then(handleResponse).catch(handleApiError),
+    axiosInstance.get('/workouts').then(handleResponse).catch(handleApiError),
   getMuscleGroups: () =>
     axiosInstance
       .get('/muscle-groups')

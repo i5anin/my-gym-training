@@ -1,21 +1,14 @@
 const express = require('express');
 const router = express.Router();
 
-// Контроллеры для тренировок и меток
-const workoutController = require('./controllers/b_workouts'); // Контроллер для тренировок
+const workoutSetsController = require('./controllers/workout-sets.controller');
+router.get('/workouts', workoutSetsController.getWorkoutSets);
+router.post('/workouts', workoutSetsController.addWorkout);
 
-// Запрос для получения всех тренировок
-router.get('/workouts', workoutController.getWorkoutSets);
+const exerciseTypesController = require('./controllers/exercise-types.controller');
+router.get('/exercise-types', exerciseTypesController.getExerciseTypes);
 
-router.post('/workouts/extended', workoutController.addWorkoutWithSets);
-
-// Запрос для получения уникальных типов упражнений
-router.get('/exercise-types', workoutController.getExerciseTypes);
-
-// Запрос для получения уникальных групп мышц
-router.get('/muscle-groups', workoutController.getMuscleGroups);
-
-// Запрос для добавления тренировки и подходов (POST-запрос)
-router.post('/workouts', workoutController.addWorkout);
+const muscleGroupsController = require('./controllers/muscle-groups.controller');
+router.get('/muscle-groups', muscleGroupsController.getMuscleGroups);
 
 module.exports = router;

@@ -1,6 +1,6 @@
 <template>
   <v-row class="mt-2">
-    <v-col cols="6" md="3">
+    <v-col cols="6" md="2">
       <v-combobox
         clearable
         v-model="localExercise.workout_number"
@@ -8,11 +8,22 @@
         required
       />
     </v-col>
-    <v-col cols="6" md="3">
+    <v-col cols="6" md="4">
       <v-combobox
         clearable
         v-model="localExercise.title"
         label="Название"
+        required
+      />
+    </v-col>
+    <v-col cols="6" md="3">
+      <v-combobox
+        clearable
+        v-model="localExercise.exercise_type_id"
+        :items="exerciseTypes"
+        label="Обозначение"
+        item-text="name"
+        item-value="id"
         required
       />
     </v-col>
@@ -27,17 +38,7 @@
         required
       />
     </v-col>
-    <v-col cols="6" md="3">
-      <v-combobox
-        clearable
-        v-model="localExercise.exercise_type_id"
-        :items="exerciseTypes"
-        label="Тип упражнения"
-        item-text="name"
-        item-value="id"
-        required
-      />
-    </v-col>
+
 
     <!-- Удаление упражнения (скрыто для первого упражнения) -->
     <v-col cols="6" md="2" v-if="exerciseIndex > 0">
