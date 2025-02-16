@@ -32,7 +32,9 @@ SELECT
                     )
                 )
                 FROM workout_set ws_add
-                WHERE ws_add.workout_id = w.id AND ws_add.set_number = ws.set_number
+                JOIN workout w_add ON ws_add.workout_id = w_add.id
+                WHERE w_add.addition_id = w.id 
+                AND ws_add.set_number = ws.set_number
             )
         )
     ) AS sets
@@ -42,7 +44,6 @@ JOIN muscle_group mg ON w.muscle_group_id = mg.id
 JOIN exercise_type et ON w.exercise_type_id = et.id
 GROUP BY w.id, w.workout_number, mg.name, et.name, w.title, w.addition_id
 ORDER BY w.workout_number ASC;
-
     `;
 
         const { rows } = await pool.query(query);
@@ -99,7 +100,6 @@ async function addWorkout(req, res) {
 }
 
 module.exports = {
-    addWorkoutWithSets,
     addWorkout,
     getWorkoutSets,
 }
