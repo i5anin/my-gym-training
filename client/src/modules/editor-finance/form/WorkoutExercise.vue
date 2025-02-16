@@ -4,7 +4,12 @@
 
     <!-- № тренировки -->
     <v-col cols="6" md="1">
-      <v-combobox clearable v-model="localExercise.workout_number" label="№ трени" required />
+      <v-combobox
+        clearable
+        v-model="localExercise.workout_number"
+        label="№ трени"
+        required
+      />
     </v-col>
 
     <!-- Дата тренировки -->
@@ -31,22 +36,54 @@
 
     <!-- Группа мышц -->
     <v-col cols="6" md="2">
-      <v-combobox clearable v-model="localExercise.muscle_group_id" :items="muscleGroups" label="Группа" item-title="name" item-value="id" required />
+      <v-combobox
+        clearable
+        v-model="localExercise.muscle_group_id"
+        :items="muscleGroups"
+        label="Группа"
+        item-title="name"
+        item-value="id"
+        required
+      />
     </v-col>
 
     <!-- Название упражнения -->
     <v-col cols="6" md="3">
-      <v-combobox clearable v-model="localExercise.exercise_id" :items="exercises" label="Название" item-title="title" item-value="id" required @update:model-value="updateSymbol" />
+      <v-combobox
+        clearable
+        v-model="localExercise.exercise_id"
+        :items="exercises"
+        label="Название"
+        item-title="title"
+        item-value="id"
+        required
+        @update:model-value="updateSymbol"
+      />
     </v-col>
 
     <!-- Обозначение -->
     <v-col cols="6" md="3">
-      <v-combobox v-model="localExercise.symbol" :items="exercises" label="Обозначение" item-title="symbol" item-value="id" required @update:model-value="updateSymbol" />
+      <v-combobox
+        v-model="localExercise.symbol"
+        :items="exercises"
+        label="Обозначение"
+        item-title="symbol"
+        item-value="id"
+        required
+        @update:model-value="updateSymbol"
+      />
     </v-col>
 
     <!-- ID добивки -->
     <v-col cols="6" md="1">
-      <v-combobox clearable v-model="localExercise.addition_id" :items="workoutOptions" label="ID добивки" item-title="workout_number" item-value="id" />
+      <v-combobox
+        clearable
+        v-model="localExercise.addition_id"
+        :items="workoutOptions"
+        label="ID добивки"
+        item-title="workout_number"
+        item-value="id"
+      />
     </v-col>
 
     <!-- Кнопка удаления -->
@@ -58,19 +95,34 @@
   <!-- Сеты -->
   <v-row v-for="(set, setIndex) in localExercise.sets" :key="setIndex">
     <v-col cols="6" md="4">
-      <v-text-field v-model="set.formattedValue" label="Вес (кг) × Повторения" @input="updateSet(set)" />
+      <v-text-field
+        v-model="set.formattedValue"
+        label="Вес (кг) × Повторения"
+        @input="updateSet(set)"
+      />
     </v-col>
 
-    <WorkoutDropSet v-for="(dropSet, dropIndex) in set.extra" :key="dropIndex" :dropSet="dropSet" @remove="removeDropSet(setIndex, dropIndex)" />
+    <WorkoutDropSet
+      v-for="(dropSet, dropIndex) in set.extra"
+      :key="dropIndex"
+      :dropSet="dropSet"
+      @remove="removeDropSet(setIndex, dropIndex)"
+    />
 
-    <v-btn variant="text" @click="addDropSet(setIndex)" color="secondary" class="mt-2" tabindex="-1">
+    <v-btn
+      variant="text"
+      @click="addDropSet(setIndex)"
+      color="secondary"
+      class="mt-2"
+      tabindex="-1"
+    >
       + Добивка
     </v-btn>
   </v-row>
 </template>
 
 <script setup>
-import {ref, watch, defineProps, defineEmits, watchEffect} from 'vue'
+import { ref, watch, defineProps, defineEmits, watchEffect } from 'vue'
 import WorkoutDropSet from './WorkoutDropSet.vue'
 
 const props = defineProps({
@@ -99,7 +151,7 @@ const datePicker = ref(false)
 // ✅ Следит за изменениями props.exercise и обновляет localExercise
 watchEffect(() => {
   if (props.exercise) {
-    localExercise.value = {...props.exercise}
+    localExercise.value = { ...props.exercise }
   }
 })
 
