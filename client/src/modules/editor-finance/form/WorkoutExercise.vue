@@ -11,9 +11,21 @@
     <v-col cols="6" md="2">
       <v-menu v-model="datePicker" :close-on-content-click="false">
         <template v-slot:activator="{ props }">
-          <v-text-field v-bind="props" clearable v-model="localExercise.training_date" label="Дата" required readonly />
+          <v-text-field
+            v-bind="props"
+            clearable
+            v-model="localExercise.training_date"
+            label="Дата"
+            required
+            readonly
+          />
         </template>
-        <v-date-picker v-model="localExercise.training_date" @update:model-value="datePicker = false" />
+        <v-date-picker
+          v-model="localExercise.training_date"
+          locale="ru"
+          first-day-of-week="1"
+          @update:model-value="datePicker = false"
+        />
       </v-menu>
     </v-col>
 
@@ -58,9 +70,8 @@
 </template>
 
 <script setup>
-import { ref, watch, defineProps, defineEmits, watchEffect } from 'vue'
+import {ref, watch, defineProps, defineEmits, watchEffect} from 'vue'
 import WorkoutDropSet from './WorkoutDropSet.vue'
-import { VDatePicker } from 'vuetify/components'
 
 const props = defineProps({
   exercise: Object,
@@ -75,7 +86,7 @@ const emit = defineEmits(['update:exercise', 'remove'])
 const localExercise = ref({
   workout_id: '',
   workout_number: '',
-  training_date: null, // Должно быть `null`, иначе v-date-picker может не работать
+  training_date: null, // Теперь без форматирования
   muscle_group_id: null,
   exercise_id: null,
   symbol: '',
@@ -83,26 +94,14 @@ const localExercise = ref({
   sets: [],
 })
 
+const datePicker = ref(false)
+
 // ✅ Следит за изменениями props.exercise и обновляет localExercise
 watchEffect(() => {
   if (props.exercise) {
-    localExercise.value = { ...props.exercise }
+    localExercise.value = {...props.exercise}
   }
 })
-
-// ✅ Следит за props.exercise и не даёт `training_date` быть пустым
-watch(
-  () => props.exercise,
-  (newVal) => {
-    if (newVal) {
-      localExercise.value.workout_number = newVal.workout_number || ''
-      localExercise.value.training_date = newVal.training_date || null
-    }
-  },
-  { deep: true, immediate: true }
-)
-
-const datePicker = ref(false)
 
 function updateSymbol(exerciseId) {
   const selectedExercise = props.exercises.find((ex) => ex.id === exerciseId)

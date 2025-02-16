@@ -11,6 +11,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@date-io/date-fns": "^3.2.0",
     "@fontsource/nunito": "^5.0.15",
     "@mdi/font": "^7.0.96",
     "@ventralnet/vue3-jstree": "^0.0.10",
