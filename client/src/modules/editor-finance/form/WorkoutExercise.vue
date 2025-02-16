@@ -1,6 +1,5 @@
 <template>
   <v-row class="mt-2">
-    <!-- ID тренировки (скрыто) -->
     <input type="hidden" v-model="localExercise.workout_id" />
 
     <!-- № тренировки -->
@@ -12,7 +11,7 @@
     <v-col cols="6" md="2">
       <v-menu v-model="datePicker" :close-on-content-click="false">
         <template v-slot:activator="{ props }">
-          <v-text-field v-bind="props" clearable v-model="localExercise.training_date" label="Дата" required />
+          <v-text-field v-bind="props" clearable v-model="localExercise.training_date" label="Дата" required readonly />
         </template>
         <v-date-picker v-model="localExercise.training_date" @update:model-value="datePicker = false" />
       </v-menu>
@@ -20,81 +19,38 @@
 
     <!-- Группа мышц -->
     <v-col cols="6" md="2">
-      <v-combobox
-        clearable
-        v-model="localExercise.muscle_group_id"
-        :items="muscleGroups"
-        label="Группа"
-        item-title="name"
-        item-value="id"
-        required
-      />
+      <v-combobox clearable v-model="localExercise.muscle_group_id" :items="muscleGroups" label="Группа" item-title="name" item-value="id" required />
     </v-col>
 
     <!-- Название упражнения -->
     <v-col cols="6" md="3">
-      <v-combobox
-        clearable
-        v-model="localExercise.exercise_id"
-        :items="exercises"
-        label="Название"
-        item-title="title"
-        item-value="id"
-        required
-        @update:model-value="updateSymbol"
-      />
+      <v-combobox clearable v-model="localExercise.exercise_id" :items="exercises" label="Название" item-title="title" item-value="id" required @update:model-value="updateSymbol" />
     </v-col>
 
-    <!-- Обозначение (автоматически заполняется) -->
+    <!-- Обозначение -->
     <v-col cols="6" md="3">
-      <v-combobox
-        v-model="localExercise.symbol"
-        :items="exercises"
-        label="Обозначение"
-        item-title="symbol"
-        item-value="id"
-        required
-        @update:model-value="updateSymbol"
-      />
+      <v-combobox v-model="localExercise.symbol" :items="exercises" label="Обозначение" item-title="symbol" item-value="id" required @update:model-value="updateSymbol" />
     </v-col>
 
-    <!-- ID обивки (если есть) -->
+    <!-- ID добивки -->
     <v-col cols="6" md="1">
-      <v-combobox
-        clearable
-        v-model="localExercise.addition_id"
-        :items="workoutOptions"
-        label="ID добивки"
-        item-title="workout_number"
-        item-value="id"
-      />
+      <v-combobox clearable v-model="localExercise.addition_id" :items="workoutOptions" label="ID добивки" item-title="workout_number" item-value="id" />
     </v-col>
 
-    <!-- Кнопка удаления упражнения -->
+    <!-- Кнопка удаления -->
     <v-col cols="6" md="2" v-if="exerciseIndex > 0">
       <v-btn @click="$emit('remove')" color="error">Удалить</v-btn>
     </v-col>
   </v-row>
 
   <!-- Сеты -->
-  <v-row v-for="(set, setIndex) in localExercise.sets" :key="'set-' + setIndex">
+  <v-row v-for="(set, setIndex) in localExercise.sets" :key="setIndex">
     <v-col cols="6" md="4">
-      <v-text-field
-        v-model="set.formattedValue"
-        label="Вес (кг) × Повторения"
-        @input="updateSet(set)"
-      />
+      <v-text-field v-model="set.formattedValue" label="Вес (кг) × Повторения" @input="updateSet(set)" />
     </v-col>
 
-    <!-- Добивки -->
-    <WorkoutDropSet
-      v-for="(dropSet, dropIndex) in set.extra"
-      :key="'dropSet-' + dropIndex"
-      :dropSet="dropSet"
-      @remove="removeDropSet(setIndex, dropIndex)"
-    />
+    <WorkoutDropSet v-for="(dropSet, dropIndex) in set.extra" :key="dropIndex" :dropSet="dropSet" @remove="removeDropSet(setIndex, dropIndex)" />
 
-    <!-- Кнопка добавления добивки -->
     <v-btn variant="text" @click="addDropSet(setIndex)" color="secondary" class="mt-2" tabindex="-1">
       + Добивка
     </v-btn>
@@ -102,49 +58,67 @@
 </template>
 
 <script setup>
-import { ref, watch, defineProps, defineEmits } from 'vue'
+import { ref, watch, defineProps, defineEmits, watchEffect } from 'vue'
 import WorkoutDropSet from './WorkoutDropSet.vue'
+import { VDatePicker } from 'vuetify/components'
 
 const props = defineProps({
   exercise: Object,
   muscleGroups: Array,
   exercises: Array,
-  workoutOptions: Array, // Список тренировок для "ID обивки"
+  workoutOptions: Array,
   exerciseIndex: Number,
 })
 
 const emit = defineEmits(['update:exercise', 'remove'])
 
-const localExercise = ref({ ...props.exercise })
+const localExercise = ref({
+  workout_id: '',
+  workout_number: '',
+  training_date: null, // Должно быть `null`, иначе v-date-picker может не работать
+  muscle_group_id: null,
+  exercise_id: null,
+  symbol: '',
+  addition_id: null,
+  sets: [],
+})
 
+// ✅ Следит за изменениями props.exercise и обновляет localExercise
+watchEffect(() => {
+  if (props.exercise) {
+    localExercise.value = { ...props.exercise }
+  }
+})
+
+// ✅ Следит за props.exercise и не даёт `training_date` быть пустым
 watch(
-  localExercise,
-  (newValue) => {
-    emit('update:exercise', newValue)
+  () => props.exercise,
+  (newVal) => {
+    if (newVal) {
+      localExercise.value.workout_number = newVal.workout_number || ''
+      localExercise.value.training_date = newVal.training_date || null
+    }
   },
-  { deep: true }
+  { deep: true, immediate: true }
 )
 
 const datePicker = ref(false)
 
-// Функция обновления "Обозначения" при выборе "Название"
 function updateSymbol(exerciseId) {
   const selectedExercise = props.exercises.find((ex) => ex.id === exerciseId)
-  localExercise.value.symbol = selectedExercise?.symbol ?? '' // Если `symbol` пустой, устанавливаем ''
+  localExercise.value.symbol = selectedExercise?.symbol ?? ''
 }
 
-// Функция обработки ввода "вес × повторения"
 function updateSet(set) {
-  const rawInput = set.formattedValue.replace(/[^0-9 ]/g, '') // ✅ Разрешаем только цифры и пробел
+  const rawInput = set.formattedValue.replace(/[^0-9 ]/g, '')
   const parts = rawInput.split(' ')
 
   set.weight = parts[0] ? parseFloat(parts[0]) : ''
   set.repetitions = parts[1] ? parseInt(parts[1], 10) : ''
 
-  set.formattedValue = rawInput // ✅ Оставляем ввод таким, каким он был введён
+  set.formattedValue = rawInput
 }
 
-// Добавление добивки
 function addDropSet(setIndex) {
   localExercise.value.sets[setIndex].extra.push({
     weight: '',
@@ -152,7 +126,6 @@ function addDropSet(setIndex) {
   })
 }
 
-// Удаление добивки
 function removeDropSet(setIndex, dropIndex) {
   localExercise.value.sets[setIndex].extra.splice(dropIndex, 1)
 }
