@@ -1,20 +1,18 @@
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
-import ruLocale from 'vuetify/lib/locale/ru' // импортируйте русскую локализацию
+import { ru } from 'vuetify/locale' // ✅ Правильный импорт русской локализации
 
 const savedTheme = localStorage.getItem('theme')
 const isDark =
   savedTheme === 'dark' ||
   (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
-// Расширьте объект ruLocale, добавив свои строки локализации
-const ru = { ...ruLocale }
-
 const vuetify = createVuetify({
-  lang: {
-    locales: { ru },
-    current: 'ru',
+  locale: {
+    locale: 'ru', // ✅ Устанавливаем русский язык по умолчанию
+    fallback: 'ru', // ✅ Если что-то не переведено — остаётся русский
+    messages: { ru }, // ✅ Передаём объект локализации
   },
   theme: {
     defaultTheme: savedTheme || (isDark ? 'dark' : 'light'),
