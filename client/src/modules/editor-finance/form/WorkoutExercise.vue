@@ -53,7 +53,7 @@
         label="Обозначение"
         item-title="symbol"
         item-value="id"
-        readonly
+        required
       />
     </v-col>
 
