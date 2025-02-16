@@ -5,7 +5,6 @@
       :key="'exercise-' + index"
       :exercise="exercise"
       :muscleGroups="muscleGroups"
-      :exerciseTypes="exerciseTypes"
       :exerciseIndex="index"
       @update:exercise="updateExercise(index, $event)"
       @remove="removeExercise(index)"
@@ -27,15 +26,14 @@ import WorkoutExercise from './WorkoutExercise.vue'
 
 const store = useWorkoutStore()
 const muscleGroups = computed(() => store.muscleGroups)
-const exerciseTypes = computed(() => store.exerciseTypes)
+const exercises = computed(() => store.exercises) // Загружаем список упражнений
 
-// Реактивный объект с упражнениями
 const newWorkout = reactive(getDefaultWorkout())
 
 const emit = defineEmits(['workoutAdded'])
 
-function submitWorkout() {
-  store.addWorkout(newWorkout)
+async function submitWorkout() {
+  await store.addWorkout(formatWorkout(newWorkout)) // Отправляем правильно отформатированные данные
   Object.assign(newWorkout, getDefaultWorkout()) // Сбрасываем состояние
   emit('workoutAdded')
 }
@@ -52,18 +50,36 @@ function updateExercise(index, updatedExercise) {
   newWorkout.exercises[index] = updatedExercise
 }
 
+// Форматируем данные перед отправкой
+function formatWorkout(workout) {
+  return {
+    workout_number: workout.workout_number,
+    training_date: workout.training_date,
+    exercises: workout.exercises.map((ex) => ({
+      exercise_id: ex.exercise_id, // Используем ID вместо названия
+      muscle_group_id: ex.muscle_group_id,
+      sets: ex.sets.map((set) => ({
+        weight: set.weight,
+        repetitions: set.repetitions,
+        extra: set.extra.map((extra) => ({
+          weight: extra.weight,
+          repetitions: extra.repetitions,
+        })),
+      })),
+    })),
+  }
+}
+
 // Функции генерации данных
 function getDefaultWorkout() {
-  return { exercises: [getDefaultExercise()] }
+  return {workout_number: '', training_date: '', exercises: [getDefaultExercise()]}
 }
 
 function getDefaultExercise() {
   return {
-    workout_number: '',
-    title: '',
+    exercise_id: null, // Используем `exercise_id`
     muscle_group_id: null,
-    exercise_type_id: null,
-    sets: Array.from({ length: 4 }, () => ({
+    sets: Array.from({length: 4}, () => ({
       weight: 0,
       repetitions: 0,
       extra: [],
