@@ -7,6 +7,13 @@ export const useWorkoutStore = defineStore('workout', {
     muscleGroups: [],
     exerciseTypes: [],
     exercises: [],
+    headers: [
+      { title: 'ID', key: 'workout_id' },
+      { title: '№ трени', key: 'workout_number' },
+      { title: 'Дата', key: 'training_date' },
+      { title: 'Группа', key: 'muscle_group' },
+      { title: 'Упражнение', key: 'exercise_name' },
+    ],
   }),
   actions: {
     async fetchData() {

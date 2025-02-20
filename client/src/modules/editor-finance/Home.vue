@@ -17,7 +17,7 @@ import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useWorkoutStore } from '@/modules/editor-finance/store/workoutStore'
 import WorkoutForm from './form/WorkoutForm.vue'
-import WorkoutTable from './WorkoutTable.vue'
+import WorkoutTable from './table/WorkoutTable.vue'
 
 const workoutStore = useWorkoutStore()
 const { workouts, muscleGroups, exerciseTypes } = storeToRefs(workoutStore) // ✅ Теперь workouts реактивный
