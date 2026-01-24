@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
-import { createHtmlPlugin } from 'vite-plugin-html'
+
 import vueDevTools from 'vite-plugin-vue-devtools'
 import { fileURLToPath, URL } from 'node:url'
 
@@ -14,7 +14,7 @@ export default defineConfig({
       autoImport: true,
     }),
     vueDevTools(), // Добавляем плагин vueDevTools
-    createHtmlPlugin({}), // Добавляем плагин createHtmlPlugin
+
   ],
   define: {
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
